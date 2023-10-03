@@ -354,7 +354,7 @@ create table myworld.student(
     email varchar(100) UNIQUE NOT NULL,
     bid INT DEFAULT 1 NOT NULL,
     primary key(id),
-    foreign key(bid) references batch(bid)
+    foreign key(bid) references batch(bid) -- ON DELETE SET DEFAULT ON UPDATE SET DEFAULT
 );
 show tables;
 desc myworld.student;
