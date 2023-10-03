@@ -56,9 +56,9 @@ CREATE TABLE myworld.scaler_student_copy (
     FOREIGN KEY(batchId) REFERENCES batch(bid) ON UPDATE SET NULL ON DELETE SET NULL
 );
 -- performing deep copy
-INSERT INTO myworld.scaler_student_copy
-SELECT * FROM myworld.scaler_student;
-
+INSERT INTO myworld.scaler_student_copy(`id`, `firstName`, `lastName`, `email`, `dateOfBirth`,`enrollmentDate`, `psp`, `batchId`, `isActive`)
+SELECT `id`, `firstName`, `lastName`, `email`, `dateOfBirth`,`enrollmentDate`, `psp`, `batchId`, `isActive` 
+FROM myworld.scaler_student;
 
 #-----------------------------------------------------------------------
 #  DEMONSTRATING READ(PRINT/SELECT) OPERATION
