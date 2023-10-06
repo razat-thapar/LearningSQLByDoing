@@ -224,4 +224,14 @@ COMMIT;
 #-----------------------------------------------------------------------
 #  DEMONSTRATING DELETE OPERATION
 #-----------------------------------------------------------------------
-
+-- delete all records of student having last id. 
+DELETE FROM myworld.scaler_student_copy
+WHERE id =1;
+ROLLBACK;
+-- truncate scaler student copy
+TRUNCATE scaler_student_copy;
+ROLLBACK;
+-- NOTE : Here, even rollback won't give you back the data lost. 
+DROP TABLE scaler_student_copy;
+ROLLBACK; 
+-- NOTE: Here, even rollback won't give you back the table deleted. 
