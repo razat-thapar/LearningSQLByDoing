@@ -103,11 +103,125 @@ FROM sakila.film f;
 -- Error Code: 1064. You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'DISTINCT f.release_year  FROM sakila.film f' at line 1
 -- Why it didn't work ? Ambiguous for SQL as different column lengths. 5 types of ratings but only 1 year 2006. 
 
+# Scenario 7: OPERATIONS ON COLUMN ( Treating column as variables) 
+SELECT title, ROUND(length/60) AS 'duration(hrs)' 
+FROM sakila.film;
+
+# Scenario 8: Filtering records using WHERE CLAUSE 
+-- Following operators are used in WHERE CLAUSE to filter records. 
+##########################################################################
+-- AND (&&), OR (||), NOT (!)
+##########################################################################
+SELECT * 
+FROM sakila.film f
+-- WHERE f.length>120 AND f.rating='PG-13';--prints records where both of them are true.
+-- WHERE f.length>120 OR f.rating='PG-13'; --prints records where either of them are true.
+WHERE NOT f.rating='PG-13'; -- prints only records where rating='PG-13' is false
+##########################################################################
+-- IN 
+##########################################################################
+-- Passing multiple values to match. 
+SELECT *
+FROM sakila.film f 
+WHERE f.rating IN('PG','G','NC-17');  
+-- We can pass IN operator a subquery as well. 
+SELECT * 
+FROM sakila.film f 
+WHERE f.rating IN( SELECT DISTINCT rating FROM sakila.film WHERE rating LIKE 'P%');
+##########################################################################
+-- BETWEEN
+##########################################################################
+SELECT * 
+FROM sakila.film f 
+-- WHERE f.rating between 'PG' AND 'R'; -- lexicographical range between [PG,R]
+WHERE f.rental_duration BETWEEN 5 and 8; 
+-- date comparison. 
+SELECT * 
+FROM sakila.payment 
+WHERE payment_date > '2005-07-30' AND payment_date < '2005-08-01 14:14:11';
+##########################################################################
+-- >,<,>=,<=,<>,!=
+##########################################################################
+SELECT * 
+FROM sakila.film f 
+WHERE f.rating >='PG' AND f.rating <='R'; -- lexicographical range between [PG,R]
+##########################################################################
+-- LIKE 
+##########################################################################
+SELECT *
+FROM sakila.film f
+-- WHERE title LIKE '%D'; -- film names ending with D. 
+-- WHERE title LIKE 'D%'; -- film names starting with D. 
+-- WHERE title LIKE '%O_O%'; -- film names having any char between two 'o'. 
+WHERE title NOT LIKE 'G%'; -- film names not starting with G. 
+############################### NOTE 1: ################################
+-- enforcing case sensitivity in LIKE operator USING LIKE BINARY
+SELECT * 
+FROM sakila.film 
+-- WHERE description LIKE BINARY '%of a P%'; -- gives me records containing case sensitive 'of a P' 
+WHERE description LIKE BINARY '%OF A P%';
+############################### NOTE 2: ################################
+-- matching wildcard characters inside LIKE operator using escape character. 
+SELECT * 
+FROM sakila.film
+-- WHERE title LIKE '%\_%'; -- matches title containing underscore. 
+WHERE title LIKE '%\%%'; -- matches title containing percentage.
+##########################################################################
+-- IS NULL , IS NOT NULL
+##########################################################################
+-- Checking for empty data in a column. 
+SELECT * 
+FROM sakila.address a 
+WHERE a.address2 IS NULL OR a.address2 ='';
+
+-- printing 0 instead of null values for column  address 2
+-- NOTE: it won't check empty character i.e., '' .  
+SELECT a.address_id,a.address,IFNULL(a.address2,0)
+FROM sakila.address a;
+-- printing 1 if null value else 0 if not null for column address2 
+SELECT a.address_id, a.address, ISNULL(a.address2)
+FROM sakila.address a; 
+
+# Scenario 9: custom sort the records while printing. (ORDER BY CLAUSE)
+-- CUSTOM SORT films using 
+-- first based on release yr descending
+-- second based on rating descending 
+-- third based on title ascending
+SELECT f.title,f.release_year,f.rating   
+FROM sakila.film f 
+ORDER BY f.release_year DESC, f.rating DESC,f.title ASC ;
+
+# Scenario 10: printing only few records (first 10) (LIMIT x OFFSET y) 
+-- print only first 10 rows
+SELECT * 
+FROM sakila.film f 
+LIMIT 10; 
+-- print 10 rows starting 11th row. 
+-- LIMIT x OFFSET y  means return so, [y+1,x+y]
+SELECT *
+FROM sakila.film f 
+LIMIT 5 OFFSET 19;  -- [20,24]
+
 #-----------------------------------------------------------------------
 #  DEMONSTRATING UPDATE OPERATION
 #-----------------------------------------------------------------------
+-- to update all film release_year to current year where title contains LOVE. 
+UPDATE sakila.film f 
+SET f.release_year = year(current_date())
+WHERE f.title LIKE '%LOVE%';
+-- Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.  To disable safe mode, toggle the option in Preferences -> SQL Editor and reconnect.
+-- toggle off the safe update mode. 
+SET SQL_SAFE_UPDATES=0;
+COMMIT; 
+-- verify the result and then commit. 
+SELECT * 
+FROM sakila.film f 
+WHERE f.title LIKE '%LOVE%';
+-- works ! 
+COMMIT; 
 
 
 #-----------------------------------------------------------------------
 #  DEMONSTRATING DELETE OPERATION
 #-----------------------------------------------------------------------
+
