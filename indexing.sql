@@ -42,3 +42,46 @@ WHERE f.title='african egg';
 -- '-> Index lookup on f using idx_film_title (title=\'african egg\')  
 -- (cost=0.35 rows=1) 
 -- (actual time=0.056..0.062 rows=1 loops=1)\n'
+
+#---------------------------------------------
+# CREATE FULLTEXT INDEX ON film.title column  
+#---------------------------------------------
+CREATE FULLTEXT INDEX idx_fulltext_film_title
+ON sakila.film(title);
+COMMIT; 
+# scenario 1: Searching pattern in title using full text index. 
+EXPLAIN ANALYZE
+SELECT * 
+FROM sakila.film f 
+WHERE MATCH(f.title) AGAINST ('WAR');
+-- '-> Filter: (match sakila.f.title against (\'WAR\'))  
+-- (cost=1.03 rows=1) (actual time=0.061..0.092 rows=3 loops=1)\n    
+-- -> Full-text index search on f using idx_fulltext_film_title (title=\'WAR\')  
+-- (cost=1.03 rows=1) (actual time=0.041..0.070 rows=3 loops=1)\n'
+
+#Scenario 2: Normal Searching 'WAR' in title column.  
+EXPLAIN ANALYZE
+SELECT * 
+FROM sakila.film f 
+WHERE f.title LIKE '%WAR%';
+-- '-> Filter: (sakila.f.title like \'%WAR%\')  
+-- (cost=111.18 rows=111) (actual time=0.231..4.033 rows=19 loops=1)\n    
+-- -> Table scan on f  
+-- (cost=111.18 rows=1000) (actual time=0.043..3.345 rows=1000 loops=1)\n'
+
+#scenario 3: Full text Searching 'WAR' in description column. (using full text search way)
+EXPLAIN ANALYZE
+SELECT * 
+FROM sakila.film f 
+WHERE MATCH(f.description) AGAINST ('WAR');
+-- Error Code: 1191. Can't find FULLTEXT index matching the column list
+
+#Scenario 4: Normal Searching 'WAR' in description column (using LIKE) 
+EXPLAIN ANALYZE
+SELECT * 
+FROM sakila.film f 
+WHERE f.description LIKE '%WAR%';
+-- '-> Filter: (sakila.f.`description` like \'%WAR%\')  
+-- (cost=111.18 rows=111) (actual time=4.818..4.818 rows=0 loops=1)\n    
+-- -> Table scan on f  
+-- (cost=111.18 rows=1000) (actual time=0.051..3.080 rows=1000 loops=1)\n'
