@@ -344,7 +344,7 @@ It is an index record that appears for only some of the values in the file. Spar
 
 However, sparse Index stores index records for only some search-key values. It needs less space, less maintenance overhead for insertion, and deletions but It is slower compared to the dense Index for locating records.
 
-![Sparse Index](https://www.guru99.com/images/1/070119_0833_IndexinginD2.png)
+![Sparse Index](https://www.guru99.com/images/1/070119_0833_IndexinginD3.png)
 #### Clustered Index
 > Cluster index is a type of index which sorts the data rows in the table on their key values.
 
