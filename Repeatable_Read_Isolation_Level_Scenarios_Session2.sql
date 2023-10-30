@@ -11,6 +11,7 @@
 # No Non-Repeatable Reads  
 # CONS: 
 # Phantom Reads
+# Extra space is required to store the snapshot. 
 ## lower performance than read uncommitted & read committed levels. 
 # Use case: 
 # Pre-requisites : 
@@ -35,8 +36,7 @@ SET c.first_name = 'xyz'
 WHERE c.customer_id = 1; 
 -- Read the customer name with id 1 again. 
 SELECT * 
-FROM sakila
-.customer c 
+FROM sakila.customer c 
 WHERE c.customer_id='1'; 
 
 ROLLBACK; 
@@ -75,7 +75,7 @@ ROLLBACK;
 show variables
 Like 'transaction_%';  -- by default REPEATABLE-READ
 -- to set isolation level of a session to read committed. 
-SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED; 
+SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 
 START TRANSACTION;
 
@@ -93,4 +93,38 @@ START TRANSACTION;
 UPDATE sakila.customer c 
 SET c.active =1 
 WHERE c.customer_id = 3;
+COMMIT;
+
+################################################################
+# Scenario 4: Phantom Read problem 
+# Session 1 will just read inactive customers with odd id. 
+# Session 2 will insert a new customer with id 601 to active.
+# Session 1 will read inactive customers with odd id again. 
+# Session 1 will update the customer with id 601 to inactive.
+# Session 1 will read inactive customers with odd id again and will get this 601 record. 
+################################################################
+
+show variables
+Like 'transaction_%';  -- by default REPEATABLE-READ
+-- to set isolation level of a session to read committed. 
+SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
+
+START TRANSACTION;
+
+-- insert a new customer with id 601 to active.
+INSERT INTO `sakila`.`customer` (`customer_id`, `store_id`, `first_name`, `last_name`, `email`, `address_id`, `active`) 
+VALUES ('601', '2', 'AUSTIN3', 'CINTRON3', 'AUSTIN3.CINTRON3@sakilacustomer.org', '605', '1');
+-- verify 
+SELECT * 
+FROM sakila.customer c 
+WHERE c.customer_id='601'; 
+
+COMMIT;
+## end the transaction
+
+#-- revert the changes. 
+START TRANSACTION;
+-- update an exisiting customer to active with id = 3 and COMMIT.  
+DELETE FROM sakila.customer c
+WHERE c.customer_id = '601';
 COMMIT;
