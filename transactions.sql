@@ -27,3 +27,11 @@ ROLLBACK; -- to end the transaction by undoing the changes in the transaction.
 ################################################################
 # ACHIEVING ISOLATION  
 ################################################################
+-- READ UNCOMMITED
+#1. Allows a transaction to read even uncommitted data from other transactions at the same time. 
+#2. Reads the latest data -(committed data from database if not present in RAM or  uncomitted data from RAM if present)
+#3. It is giving us fastest read/write operations time. Since, we are reading the latest data(most of the time from RAM). 
+#4. CONS: Inconsistency in results (DIRTY READ)
+#USE CASE : updating the count of users in live hotstar match. 
+
+-- READ COMMITTED 
