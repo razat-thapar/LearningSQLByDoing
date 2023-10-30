@@ -59,3 +59,33 @@ FROM sakila.customer c
 WHERE c.customer_id='1';
  
 ROLLBACK; 
+
+
+################################################################
+# Scenario 3: Non-Repeatable Read problem 
+# Session 1 will just read inactive customers with odd id. 
+# Session 2 will update an exisiting customer to inactive with id = 3. 
+# Session 1 will read inactive customers with odd id again but list will not match. 
+################################################################
+show variables
+Like 'transaction_%';  -- by default REPEATABLE-READ
+-- to set isolation level of a session to read committed. 
+SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED; 
+
+START TRANSACTION;
+
+-- update an exisiting customer to inactive with id = 3 and COMMIT.  
+UPDATE sakila.customer c 
+SET c.active =0 
+WHERE c.customer_id = 3;
+
+COMMIT;
+## end the transaction
+
+#-- revert the changes. 
+START TRANSACTION;
+-- update an exisiting customer to active with id = 3 and COMMIT.  
+UPDATE sakila.customer c 
+SET c.active =1 
+WHERE c.customer_id = 3;
+COMMIT;
