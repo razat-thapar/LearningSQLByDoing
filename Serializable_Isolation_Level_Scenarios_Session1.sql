@@ -25,7 +25,7 @@
 ################################################################
 show variables
 Like 'transaction_%';  -- by default REPEATABLE-READ
--- to set isolation level of a session to read committed. 
+-- to set isolation level of a session to Serailizable. 
 SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE; 
 
 START TRANSACTION;
@@ -54,7 +54,7 @@ ROLLBACK;
 ################################################################
 show variables
 Like 'transaction_%';  -- by default REPEATABLE-READ
--- to set isolation level of a session to REPEATABLE READ 
+-- to set isolation level of a session to Serializable
 SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE; 
 
 START TRANSACTION;
@@ -214,4 +214,50 @@ WHERE c.active=0 AND c.customer_id%2=1;
 -- Rollback the transaction.
 ROLLBACK;
 
+################################################################
+# Scenario 5: Testing whether another transaction can read on same rows that are having write range lock. 
+# Session 1 will update the customer with odd id to inactive and don't commit. 
+# Session 2 will read the customer with odd id. 
+# Session 1 will rollback
+# Session 2 will again read the same rows and then rollback. 
+################################################################
+show variables
+Like 'transaction_%';  -- by default REPEATABLE-READ
+-- to set isolation level of a session to serializable
+SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE; 
 
+START TRANSACTION;
+
+-- update all customers with odd id to inactive.  
+UPDATE sakila.customer c 
+SET c.active = 0
+WHERE c.customer_id IN (1,3,5,7,9); 
+-- verify 
+SELECT * 
+FROM sakila.customer c 
+WHERE c.customer_id IN (1,3,5,7,9) ; 
+
+ROLLBACK;
+
+################################################################
+# Scenario 6: Testing whether another serializable transaction can read (intention is to update rows post read i.e., for update) 
+# on same rows that are having read range lock. 
+# Session 1 will read the customer with odd id. 
+# Session 2 will read the customer with odd id for update. 
+# Session 2 read will be blocked !
+# Session 1 will rollback
+# Session 2 will again read the same rows and then rollback. 
+################################################################
+show variables
+Like 'transaction_%';  -- by default REPEATABLE-READ
+-- to set isolation level of a session to serializable
+SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE; 
+
+START TRANSACTION;
+
+-- select all customers with odd id in range.   
+SELECT * 
+FROM sakila.customer c 
+WHERE c.customer_id IN (1,3,5,7,9) ; 
+-- session 2 will do the read on same rows having range lock by session 1. 
+ROLLBACK;
