@@ -99,3 +99,41 @@ WHERE c.active=0 AND c.customer_id%2=1;
 
 -- Rollback the transaction.
 ROLLBACK;
+
+################################################################
+# Scenario 4: Phantom Read problem 
+# Session 1 will just read inactive customers with odd id. 
+# Session 2 will insert a new customer with id 601 to active and commit. 
+# Session 1 will read inactive customers with odd id again. 
+# Session 1 will update the customer with id 601 to inactive.
+# Session 1 will read inactive customers with odd id again and will get this 601 record. 
+################################################################
+
+show variables
+Like 'transaction_%';  -- by default REPEATABLE-READ
+-- to set isolation level of a session to read committed. 
+SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED; 
+
+START TRANSACTION;
+
+-- Read the inactive customers with odd customer id. 
+SELECT *
+FROM sakila.customer c 
+WHERE c.active=0 AND c.customer_id%2=1; 
+-- Session 2 will insert a new customer with id 601 to active. 
+-- Read the list again.  
+SELECT *
+FROM sakila.customer c 
+WHERE c.active=0 AND c.customer_id%2=1; 
+-- works as expected! 
+-- let's try to update customer with id 601 to inactive. 
+UPDATE sakila.customer c 
+SET c.active =0
+WHERE c.customer_id = 601; 
+-- Phantom READ problem. 
+-- Ideally, this update shouldn't have worked as no records with id 601 should be present as it's updated by another session. 
+SELECT *
+FROM sakila.customer c 
+WHERE c.active=0 AND c.customer_id%2=1; 
+-- Rollback the transaction.
+ROLLBACK;
