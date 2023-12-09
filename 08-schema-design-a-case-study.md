@@ -64,12 +64,12 @@ So each table has `ID` as primary key. The `students` table has a `batch ID` fie
 
 Following is a schema diagram for the above database. Note that the primary key is not highlighted here, which ideally should be.
 
-![Schema](../media/schema.png)
+![Schema](/media/schema.png)
 
 > **Note**
 >
 > Try it yourself. \
-> Go to [this](https://diagramplus.com/) website and import [this](../media/schema.diagram) diagram. \
+> Go to [this](https://diagramplus.com/) website and import [this](/media/schema.diagram) diagram. \
 > Try adding a new column or even a new table.
 
 ### Case study: Requirements
@@ -162,7 +162,7 @@ The next step would be to identify the relationships between the entities to add
 
 A student can only have one email address and one email address can be associated with only one student.
 
-![One to One](../media/one-to-one.png)
+![One to One](/media/one-to-one.png)
 
 An attribute shared by both entities can be added to either of the entities.
 
@@ -171,7 +171,7 @@ An attribute shared by both entities can be added to either of the entities.
 
 A student can only be associated with one batch, but a batch can have many students.
 
-![One to Many](../media/one-to-many.png)
+![One to Many](/media/one-to-many.png)
 
 An attribute shared by both entities can only be added to the entity which has multiple instances i.e. the M side.
 
@@ -181,7 +181,7 @@ An attribute shared by both entities can only be added to the entity which has m
 
 A student can attend multiple classes and a class can have multiple students.
 
-![Many to Many](../media/many-to-many.png)
+![Many to Many](/media/many-to-many.png)
 
 An attribute shared by both entities has to be added to the relationship.
 
