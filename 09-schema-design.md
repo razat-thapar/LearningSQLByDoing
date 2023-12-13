@@ -325,6 +325,8 @@ As a rule of thumb, given a query, look at the join conditions and where conditi
 After drawing the complete Schema, mention the indexes.
 This was all about Schema Design!
 
+![Final Scaler Schema Diagram](./media/scaler_schema_design.svg)
+
 ## Case Study - Netflix Schema Design
 
 Let's go over the problem statement first. 
