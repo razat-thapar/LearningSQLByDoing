@@ -454,5 +454,6 @@ Index on (profile_id, watch_status)
 
 And so on. 
 
+![netflix schema design](./media/netflix_schema.svg)
 
 
